@@ -20,8 +20,9 @@ Always follow this order:
 5. **Research at the chosen depth** if no usable entry exists: use the Concept Lens below, browsing when the topic may have changed or precise sourcing matters.
 6. **Forge the concept record** as structured JSON using `references/concept-schema.md`.
 7. **Render and store** with `scripts/concept_forge.py upsert`; this must create JSON, Quarkdown, Markdown, HTML, and Slidev source artifacts.
-8. **Validate** the stored entry and generated artifacts with `scripts/concept_forge.py validate`.
-9. **Report in Chinese**: always give the answer first, then the local HTML path. Avoid implementation details unless asked.
+8. **Check delivery branch** with `scripts/concept_forge.py bootstrap "<original request>"` if the user asked for formal reading, PDF, slides, talk, preview, build, or export.
+9. **Validate** the stored entry and generated artifacts with `scripts/concept_forge.py validate`.
+10. **Report in Chinese**: always give the answer first, then the local HTML path. Avoid implementation details unless asked.
 
 ## User-Facing Response Shape
 
@@ -92,6 +93,26 @@ Use web research when facts may be current, niche, controversial, product-specif
 
 ## Output Modes
 
+### Branch Selection
+
+There are three product branches. Distinguish them precisely.
+
+1. **Normal concept branch**: user asks "X 是什么", "X 和 Y 有什么区别", "帮我理解/记住/整理这个概念", or gives a keyword. Generate direct answer, Quarkdown source, Slidev source, HTML, and index. Do not prompt for Quarkdown or Slidev installation.
+2. **Formal reading branch**: user asks for "正式阅读", "长文档", "报告", "PDF", "文档", "打印", "编译", "导出", "交付", or explicitly names Quarkdown. Run `bootstrap` before compiling. If Quarkdown is missing, stop before compile/export and show installation guidance.
+3. **Formal presentation branch**: user asks for "演示", "公开讲解", "课件", "幻灯片", "PPT", "slides", "deck", "presentation", "预览", "构建", "导出", or explicitly names Slidev. Run `bootstrap` before preview/build/export. If Node/npm or Slidev project dependencies are missing, stop before preview/build/export and show setup guidance.
+
+If the user asks for both reading and presentation, use Quarkdown as the mother draft and Slidev as the derived talk draft, then check both branches.
+
+Branch helper commands:
+
+```bash
+python <skill>/scripts/concept_forge.py --workspace <workspace> plan "<original request>"
+python <skill>/scripts/concept_forge.py --workspace <workspace> bootstrap "<original request>"
+python <skill>/scripts/concept_forge.py --workspace <workspace> bootstrap --intent quarkdown
+python <skill>/scripts/concept_forge.py --workspace <workspace> bootstrap --intent slidev
+python <skill>/scripts/concept_forge.py --workspace <workspace> bootstrap --intent all
+```
+
 ### Existing Entry
 
 If lookup finds a strong existing entry:
@@ -157,10 +178,13 @@ Quarkdown and Slidev are part of the product shape.
   - **Quick**: stable small concept; generate all source artifacts, normally skip compilation/export.
   - **Standard**: default for tools, methods, comparisons, and "what is X"; generate all artifacts and verify structure.
   - **Deep**: user asks for research or the topic is current/complex; strengthen sources, history, horizontal comparison, and talk structure.
-- Compile Quarkdown or build/export Slidev only when the user needs a formal deliverable or local preview. Source generation must not depend on the CLIs being installed.
-- Use `scripts/concept_forge.py doctor` on first use or before formal export to check Python, Quarkdown, Node, pnpm, and Slidev availability.
-- For Slidev formal use, initialize inside `slidev/<slug>` with `npm install` or `pnpm install`, then run `npm run dev/build/export` or the matching pnpm command as needed.
-- For Quarkdown formal use, compile `concept.qd` with `quarkdown c <concept.qd> --strict --out <verify-dir>` when `quarkdown` is available.
+- Compile Quarkdown or build/export Slidev only when the request enters a formal branch. Source generation must not depend on the CLIs being installed.
+- Use `scripts/concept_forge.py doctor` on first use for a general environment check.
+- Use `scripts/concept_forge.py bootstrap "<original request>"` before formal compile/export to decide whether to guide installation.
+- For Quarkdown formal reading, require `quarkdown`. If missing on Windows, show: `irm https://raw.githubusercontent.com/quarkdown-labs/get-quarkdown/refs/heads/main/install.ps1 | iex`, then verify with `quarkdown doctor get install-dir`.
+- For Quarkdown compile, run `quarkdown c <concept.qd> --strict --out <verify-dir>` when `quarkdown` is available.
+- For Slidev formal presentation, require Node plus npm or pnpm. In `slidev/<slug>`, run `npm install` or `pnpm install`, then `npm run dev`, `npm run build`, or `npm run export` as needed.
+- For Slidev PDF/PPTX export, install `playwright-chromium` in the generated slide project first: `npm i -D playwright-chromium`.
 
 ## Quality Gate
 
@@ -173,6 +197,8 @@ Before reporting completion, check:
 - HTML exists and is non-empty;
 - Quarkdown mother draft exists;
 - Slidev source exists;
+- formal branches ran `bootstrap` before compile/export;
+- missing formal tooling was reported before attempting compile/export;
 - `validate` passes;
 - index contains title, aliases, slug, direct answer, summary, Quarkdown path, Slidev path, and HTML path;
 - final answer is short, Chinese, and user-facing.

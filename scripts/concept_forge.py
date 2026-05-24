@@ -23,7 +23,7 @@ from pathlib import Path
 from typing import Any, Dict, Iterable, List, Tuple
 
 
-VERSION = "1.1.0"
+VERSION = "1.2.0"
 
 
 REQUIRED_FIELDS = [
@@ -70,6 +70,43 @@ DEPTH_RULES = {
         "原理",
         "prompt",
         "工具",
+    ],
+}
+
+
+DELIVERY_RULES = {
+    "quarkdown": [
+        "正式阅读",
+        "长文档",
+        "报告",
+        "文档",
+        "pdf",
+        "PDF",
+        "编译",
+        "导出",
+        "打印",
+        "交付",
+        "母稿",
+        "quarkdown",
+        "Quarkdown",
+    ],
+    "slidev": [
+        "演示",
+        "讲解",
+        "公开",
+        "课件",
+        "幻灯片",
+        "ppt",
+        "PPT",
+        "slide",
+        "slides",
+        "deck",
+        "presentation",
+        "预览",
+        "构建",
+        "导出",
+        "slidev",
+        "Slidev",
     ],
 }
 
@@ -245,6 +282,26 @@ def classify_depth(query: str) -> str:
     return "quick"
 
 
+def classify_delivery(query: str) -> Dict[str, Any]:
+    text = normalize_text(query)
+    needs_quarkdown = any(normalize_text(token) in text for token in DELIVERY_RULES["quarkdown"])
+    needs_slidev = any(normalize_text(token) in text for token in DELIVERY_RULES["slidev"])
+    # "导出" can be ambiguous. Keep both only when no narrower surface is named.
+    if normalize_text("导出") in text and not (needs_quarkdown or needs_slidev):
+        needs_quarkdown = True
+        needs_slidev = True
+    modes: List[str] = []
+    if needs_quarkdown:
+        modes.append("quarkdown_compile")
+    if needs_slidev:
+        modes.append("slidev_build")
+    return {
+        "formal_delivery": bool(modes),
+        "modes": modes,
+        "rule": "explicit user deliverable wording" if modes else "source-only default",
+    }
+
+
 def output_plan(depth: str) -> Dict[str, Any]:
     compile_policy = {
         "quick": "生成 Quarkdown/Slidev 源文件和 HTML；通常不编译导出。",
@@ -267,6 +324,77 @@ def output_plan(depth: str) -> Dict[str, Any]:
             "slidev/<slug>/slides.md",
         ],
         "compile_policy": compile_policy[depth],
+    }
+
+
+def tool_status() -> Dict[str, Any]:
+    return {
+        "python": sys.executable,
+        "quarkdown": shutil.which("quarkdown"),
+        "slidev": shutil.which("slidev"),
+        "node": shutil.which("node"),
+        "npm": shutil.which("npm"),
+        "pnpm": shutil.which("pnpm"),
+    }
+
+
+def bootstrap(query: str = "", intent: str = "auto") -> Dict[str, Any]:
+    status = tool_status()
+    delivery = classify_delivery(query) if intent == "auto" else {
+        "formal_delivery": intent in {"quarkdown", "slidev", "all"},
+        "modes": [],
+        "rule": f"manual intent: {intent}",
+    }
+    if intent in {"quarkdown", "all"}:
+        delivery["modes"].append("quarkdown_compile")
+    if intent in {"slidev", "all"}:
+        delivery["modes"].append("slidev_build")
+    delivery["modes"] = list(dict.fromkeys(delivery["modes"]))
+
+    needs_quarkdown = "quarkdown_compile" in delivery["modes"]
+    needs_slidev = "slidev_build" in delivery["modes"]
+    missing: List[str] = []
+    if needs_quarkdown and not status["quarkdown"]:
+        missing.append("quarkdown")
+    if needs_slidev and not status["node"]:
+        missing.append("node")
+    if needs_slidev and not (status["npm"] or status["pnpm"]):
+        missing.append("npm_or_pnpm")
+
+    install_steps = {
+        "quarkdown_windows": "irm https://raw.githubusercontent.com/quarkdown-labs/get-quarkdown/refs/heads/main/install.ps1 | iex",
+        "quarkdown_verify": "quarkdown doctor get install-dir",
+        "node_windows": "winget install OpenJS.NodeJS.LTS",
+        "slidev_project_init": "cd <workspace>/slidev/<slug> && npm install",
+        "slidev_verify": "cd <workspace>/slidev/<slug> && npm run build",
+        "slidev_export_dependency": "cd <workspace>/slidev/<slug> && npm i -D playwright-chromium",
+    }
+    next_actions: List[str] = []
+    if not delivery["formal_delivery"]:
+        next_actions.append("No formal compile/export requested. Generate concept.qd, slides.md, and HTML; skip tool installation prompts.")
+    if needs_quarkdown:
+        next_actions.append("Before compiling a formal Quarkdown document, ensure quarkdown is installed and run the verify command.")
+    if needs_slidev:
+        next_actions.append("Before previewing/building/exporting Slidev, ensure Node plus npm or pnpm are installed, then install dependencies inside the generated slidev/<slug> project.")
+    if missing:
+        next_actions.append("Stop before formal compile/export and show the missing-tool installation steps to the user.")
+    elif needs_quarkdown and not needs_slidev:
+        next_actions.append("Quarkdown is available. Proceed to compile after the concept artifacts are generated.")
+    elif needs_slidev and not needs_quarkdown:
+        next_actions.append("Node/npm prerequisites are available. Initialize the generated Slidev project with npm install before preview/build/export.")
+    elif delivery["formal_delivery"]:
+        next_actions.append("Required global prerequisites are available. Compile Quarkdown and initialize the generated Slidev project before build/export.")
+
+    return {
+        "version": VERSION,
+        "query": query,
+        "intent": intent,
+        "branch": "formal_dual" if needs_quarkdown and needs_slidev else "formal_reading" if needs_quarkdown else "formal_presentation" if needs_slidev else "normal_concept",
+        "delivery": delivery,
+        "tool_status": status,
+        "missing_for_requested_delivery": missing,
+        "install_steps": install_steps,
+        "next_actions": next_actions,
     }
 
 
@@ -973,19 +1101,21 @@ def validate(workspace: Path, slug: str) -> Tuple[bool, List[str]]:
 
 
 def doctor() -> Dict[str, Any]:
-    quarkdown = shutil.which("quarkdown")
-    slidev = shutil.which("slidev")
-    npm = shutil.which("npm")
-    pnpm = shutil.which("pnpm")
+    status = tool_status()
     return {
-        "python": sys.executable,
+        "python": status["python"],
         "version": VERSION,
         "optional_tools": {
-            "quarkdown": quarkdown,
-            "slidev": slidev,
-            "node": shutil.which("node"),
-            "npm": npm,
-            "pnpm": pnpm,
+            "quarkdown": status["quarkdown"],
+            "slidev": status["slidev"],
+            "node": status["node"],
+            "npm": status["npm"],
+            "pnpm": status["pnpm"],
+        },
+        "readiness": {
+            "core_generation": "ready",
+            "quarkdown_compile": "ready" if status["quarkdown"] else "needs quarkdown install",
+            "slidev_build": "global prerequisites ready; each deck still needs npm install" if status["node"] and (status["npm"] or status["pnpm"]) else "needs node plus npm/pnpm",
         },
         "generated_without_optional_tools": [
             "concept.json",
@@ -998,7 +1128,7 @@ def doctor() -> Dict[str, Any]:
             "quarkdown": "If installed, verify a mother draft with: quarkdown c concept.qd --strict --out <verify-dir>",
             "slidev": "Inside slidev/<slug>, run npm install or pnpm install once, then npm run dev/build/export as needed.",
         },
-        "note": "Quarkdown and Slidev source files are first-class outputs. CLI tools are only needed when compiling or exporting.",
+        "note": "Quarkdown and Slidev source files are first-class outputs. CLI tools are required when the user asks for formal compile, preview, build, or export.",
     }
 
 
@@ -1068,6 +1198,15 @@ def parse_args() -> argparse.Namespace:
     plan_p = sub.add_parser("plan", help="Classify query depth and expected outputs")
     plan_p.add_argument("query")
 
+    bootstrap_p = sub.add_parser("bootstrap", help="Check formal delivery tooling and show setup guidance")
+    bootstrap_p.add_argument("query", nargs="?", default="", help="Original user request, used to detect formal delivery intent")
+    bootstrap_p.add_argument(
+        "--intent",
+        choices=["auto", "quarkdown", "slidev", "all"],
+        default="auto",
+        help="Force a delivery branch instead of detecting from query",
+    )
+
     upsert_p = sub.add_parser("upsert", help="Store concept JSON and render artifacts")
     upsert_p.add_argument("--input", required=True, help="Path to concept JSON, or '-' for stdin")
 
@@ -1094,8 +1233,13 @@ def main() -> int:
 
         if args.command == "plan":
             depth = classify_depth(args.query)
-            payload = {"query": args.query, **output_plan(depth)}
+            delivery = classify_delivery(args.query)
+            payload = {"query": args.query, **output_plan(depth), "delivery": delivery}
             print(json.dumps(payload, ensure_ascii=False, indent=2))
+            return 0
+
+        if args.command == "bootstrap":
+            print(json.dumps(bootstrap(args.query, args.intent), ensure_ascii=False, indent=2))
             return 0
 
         if args.command == "upsert":

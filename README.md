@@ -45,6 +45,26 @@ Obsidian 是什么，适合什么人
 RAG 和 Agent 的区别
 ```
 
+## 分支入口
+
+普通概念问题会走“普通解释分支”：生成一句解释、Quarkdown 源文件、Slidev 源文件、互动 HTML 和索引，但不打扰用户安装额外工具。
+
+```powershell
+python scripts/concept_forge.py --workspace ./concept-forge-workspace plan "Harness 工程是什么"
+```
+
+如果用户明确要正式阅读、报告、PDF、文档、编译或 Quarkdown，会走“正式阅读分支”，并先检查 Quarkdown：
+
+```powershell
+python scripts/concept_forge.py --workspace ./concept-forge-workspace bootstrap "把 Harness 工程整理成正式报告 PDF"
+```
+
+如果用户明确要演示、公开讲解、课件、PPT、slides、preview、build、export 或 Slidev，会走“正式演示分支”，并先检查 Node/npm 和 Slidev 项目依赖：
+
+```powershell
+python scripts/concept_forge.py --workspace ./concept-forge-workspace bootstrap "把 Harness 工程做成公开讲解用的 Slidev 演示稿"
+```
+
 推荐默认工作目录：
 
 ```text
