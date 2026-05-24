@@ -1,0 +1,7 @@
+interface:
+  display_name: "Concept Forge"
+  short_description: "Forge concepts into reusable knowledge pages"
+  default_prompt: "Use $concept-forge to answer this concept directly, then generate a reusable Quarkdown draft, Slidev source, and interactive HTML page."
+
+policy:
+  allow_implicit_invocation: true

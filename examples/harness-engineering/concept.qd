@@ -1,0 +1,105 @@
+# Harness 工程
+
+> Quarkdown 母稿：用于正式阅读、长期归档，以及给 Slidev 提炼讲稿。
+
+## 阅读入口
+你写的 haness 我按更常见的 harness 理解：Harness 工程就是给 AI 智能体做一套“马具/操作系统”，不是只教它一句 prompt，而是把工具、权限、上下文、检查和反馈都套好，让它能稳定干活。
+
+## 正文
+
+
+> 更新时间：2026-05-24 | 分类：AI 工程方法 | 深度：standard
+
+## 直接回答
+你写的 haness 我按更常见的 harness 理解：Harness 工程就是给 AI 智能体做一套“马具/操作系统”，不是只教它一句 prompt，而是把工具、权限、上下文、检查和反馈都套好，让它能稳定干活。
+
+## 一句话记住
+Harness 工程是围绕 AI 智能体搭建可靠运行环境的工程方法，重点是管理工具、上下文、约束、反馈和可观察性。
+
+## 它是什么
+在 AI 语境里，harness 不是模型本身，而是包在模型外面的工作环境。它决定智能体能看见什么、能用哪些工具、什么时候停下来检查、犯错后如何恢复，以及人如何追踪它做过什么。
+
+## 它解决什么问题
+只靠更好的 prompt，往往只能改善一次回答；但真实任务需要多轮执行、调用工具、处理错误和交付结果。Harness 工程把这些外部条件做成系统，让智能体从“会聊天”变成“能被管理地做事”。
+
+## 它怎么工作
+- 先定义任务入口：用户目标、边界、完成标准和禁止事项。
+- 再组织上下文：项目说明、历史决策、文件结构、当前状态和相关资料。
+- 然后配置工具与权限：哪些命令能跑、哪些文件能改、哪些动作需要确认。
+- 接着建立反馈回路：测试、校验、日志、审查、失败恢复和进度记录。
+- 最后持续维护：清理过期知识、总结错误模式、让下一次执行继承经验。
+
+## 它不是什么
+- 不是传统汽车或电子行业里的线束工程；那个更多是在设计电缆、连接器和布线路径。
+- 不是单纯写一个更长的 Prompt；Prompt 只是 harness 里的一个小部件。
+- 不是某个固定软件或平台；它是一套围绕智能体可靠运行的系统设计方法。
+- 不是让 AI 完全自由发挥；恰好相反，它强调让 AI 在清楚边界里发挥。
+
+## 它和相近概念的区别
+### Prompt 工程
+Prompt 工程主要优化一次输入如何表达。
+
+区别：Prompt 工程像写一张任务纸条；Harness 工程像搭一个完整工作台，纸条、工具、检查表和安全规则都在里面。
+
+### Context 工程
+Context 工程关注给模型放进哪些信息。
+
+区别：Context 工程是 harness 的核心零件之一；Harness 还包括工具、权限、反馈、记忆和运行流程。
+
+### Agent Framework
+Agent Framework 通常提供构建智能体的软件框架。
+
+区别：框架是材料和脚手架；Harness 工程是如何把材料组织成可运行、可检查、可维护的系统。
+
+### 线束工程
+线束工程是电气/机械行业中对线缆束、连接器和布线的设计制造。
+
+区别：AI Harness 借用了“约束和连接力量”的比喻，但对象从电线或马具变成了 AI 智能体的运行环境。
+
+
+## 一个具体例子
+### 一个 Codex 例子
+同样是让 AI 修改代码，只写一句“帮我改好”很容易失控；如果有 AGENTS.md、测试命令、文件边界、权限确认、进度记录和最终检查，这整套东西就是一个 harness。
+
+## 关联概念
+- **AI Agent**（上位概念）：Harness 工程服务的对象通常是需要连续执行任务的智能体。
+- **Context Engineering**（下位概念）：管理上下文是 harness 中最关键的一层。
+- **Tool Use**（下位概念）：智能体可靠性很大程度取决于工具接口是否清楚、有限、可验证。
+- **Observability**（下位概念）：如果看不见智能体做了什么，就很难改进或追责。
+- **Prompt Engineering**（容易混淆）：它们常被混为一谈，但层级不同。
+- **Agent Memory**（继续探索）：长期记忆是 harness 能持续变好的基础。
+
+## 来源与演变
+- **软件测试里的 test harness**：harness 原本可指为测试对象搭建的运行和验证环境。
+- **AI Agent 进入真实工作流**：当模型开始调用工具、读写文件和连续执行任务，单次提示不再够用。
+- **Harness Engineering 兴起**：业内开始把模型外部的上下文、工具、权限、检查和维护机制视为一个整体来设计。
+
+## 记忆钩子
+Prompt 是给马喊口令，Harness 是缰绳、马鞍、路线和护栏。
+
+## 三句话带走
+- Harness 工程关注的是模型外面的系统，而不是模型本身。
+- 它把上下文、工具、权限、反馈和记忆组织成可复用的运行环境。
+- 它和 Prompt 工程的差别是：一个改一句话，一个改整套工作条件。
+
+## 小测验
+1. Harness 工程最关心什么？
+   1. 把 prompt 写得更长
+   2. 把智能体运行环境设计得更可靠
+   3. 设计汽车线束
+   答案：把智能体运行环境设计得更可靠
+   解释：在 AI 语境里，它的核心是让智能体的执行环境可控、可查、可改进。
+2. Context 工程和 Harness 工程是什么关系？
+   1. 完全同义
+   2. Context 工程通常是 Harness 工程的一部分
+   3. 二者没有关系
+   答案：Context 工程通常是 Harness 工程的一部分
+   解释：上下文管理很重要，但 harness 还包括工具、权限、反馈和维护。
+
+## 来源与更新时间
+- [NxCode：Harness 工程完整指南](https://www.nxcode.io/zh/resources/news/harness-engineering-complete-guide-ai-agent-codex-2026)：用于确认 AI Agent 语境下 Harness 工程的中文定义和常见组成。
+- [AgentPatterns.ai：Harness Engineering](https://www.agentpatterns.ai/agent-design/harness-engineering/)：用于整理可靠智能体环境、约束和反馈的核心思路。
+- [Siemens：线束工程](https://www.siemens.com/zh-tw/technology/wire-harness-engineering/)：用于区分传统 wire harness engineering 与 AI Harness Engineering。
+- [Wikipedia：Harness](https://en.wikipedia.org/wiki/Harness)：用于核对 harness 一词的多义性，包括 cable harness 和 test harness。
+
+别名：Harness 工程、haness 工程、Harness Engineering、AI Harness Engineering、Agent Harness、智能体运行线束

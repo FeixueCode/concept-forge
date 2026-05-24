@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Harness 工程 | Concept Forge</title>
+  <style>
+    :root {
+      --ink: #17202a;
+      --muted: #667085;
+      --paper: #fffdf8;
+      --line: #dfdfd5;
+      --blue: #2f6f9f;
+      --green: #337357;
+      --rose: #a33f4f;
+      --gold: #b7791f;
+      --violet: #6954a5;
+      --shadow: 0 18px 45px rgba(23,32,42,.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+      line-height: 1.65;
+    }
+    .wrap { width: min(1120px, calc(100% - 32px)); margin: 0 auto; }
+    header {
+      min-height: 78vh;
+      display: grid;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(90deg, rgba(47,111,159,.10), transparent 38%),
+        linear-gradient(180deg, rgba(183,121,31,.10), transparent 54%);
+    }
+    .hero { padding: 72px 0 48px; }
+    .eyebrow { color: var(--green); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { font-size: clamp(44px, 9vw, 104px); line-height: .95; margin: 12px 0 18px; letter-spacing: 0; }
+    .summary { font-size: clamp(19px, 2.4vw, 29px); max-width: 850px; }
+    .direct-answer {
+      max-width: 880px;
+      margin: 22px 0 0;
+      padding: 16px 18px;
+      border-left: 6px solid var(--blue);
+      background: rgba(255,255,255,.78);
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      font-size: 18px;
+    }
+    .hook { display: inline-flex; margin-top: 24px; padding: 12px 16px; border: 1px solid var(--line); background: rgba(255,255,255,.65); box-shadow: var(--shadow); }
+    main { padding: 36px 0 72px; }
+    section { margin: 40px 0; }
+    h2 { font-size: clamp(25px, 4vw, 42px); margin: 0 0 18px; }
+    h3 { margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .card, .compare-card, .quiz-card, .map-group, .example {
+      background: rgba(255,255,255,.76);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(23,32,42,.06);
+    }
+    .card:nth-child(1) h3 { color: var(--blue); }
+    .card:nth-child(2) h3 { color: var(--green); }
+    .card:nth-child(3) h3 { color: var(--rose); }
+    .not-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+    .not-item { border-left: 5px solid var(--rose); background: #fff; padding: 14px; border-radius: 8px; }
+    .compare-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+    .ghost, .quiz-options button {
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 13px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .ghost:hover, .quiz-options button:hover { background: var(--ink); color: white; }
+    .reveal { display: none; margin-top: 12px; color: var(--muted); }
+    .reveal.open { display: block; }
+    .map { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+    .map-group ul, .sources ul { list-style: none; padding: 0; margin: 0; }
+    .map-group li { padding: 10px 0; border-top: 1px solid var(--line); }
+    .map-group span { display: block; font-weight: 750; color: var(--violet); }
+    .map-group small { color: var(--muted); }
+    .timeline { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; }
+    .time-item { min-width: 230px; border-top: 4px solid var(--gold); padding: 12px; background: white; border-radius: 8px; }
+    .example { border-left: 6px solid var(--green); }
+    .quiz-options { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+    .feedback.ok { color: var(--green); font-weight: 700; }
+    .feedback.no { color: var(--rose); font-weight: 700; }
+    .takeaways { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; counter-reset: take; }
+    .takeaway { position: relative; padding: 22px 18px 18px; background: var(--ink); color: white; border-radius: 8px; }
+    .takeaway:before { counter-increment: take; content: counter(take); position: absolute; top: -14px; left: 16px; background: var(--gold); color: #111; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 50%; font-weight: 800; }
+    .sources li { display: grid; gap: 4px; padding: 10px 0; border-top: 1px solid var(--line); }
+    .sources a { color: var(--blue); font-weight: 700; }
+    .muted, footer { color: var(--muted); }
+    footer { border-top: 1px solid var(--line); padding: 24px 0 40px; }
+    @media (max-width: 760px) {
+      header { min-height: auto; }
+      .grid, .takeaways { grid-template-columns: 1fr; }
+      .summary { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap hero">
+      <div class="eyebrow">AI 工程方法</div>
+      <h1>Harness 工程</h1>
+      <p class="summary">Harness 工程是围绕 AI 智能体搭建可靠运行环境的工程方法，重点是管理工具、上下文、约束、反馈和可观察性。</p>
+      <div class="direct-answer"><strong>一句话先懂：</strong>你写的 haness 我按更常见的 harness 理解：Harness 工程就是给 AI 智能体做一套“马具/操作系统”，不是只教它一句 prompt，而是把工具、权限、上下文、检查和反馈都套好，让它能稳定干活。</div>
+      <div class="hook"><strong>记忆钩子：</strong>&nbsp;Prompt 是给马喊口令，Harness 是缰绳、马鞍、路线和护栏。</div>
+      <p class="muted">haness 工程 · Harness Engineering · AI Harness Engineering · Agent Harness · 智能体运行线束</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <section>
+      <h2>先把它抓住</h2>
+      <div class="grid">
+        <article class="card"><h3>它是什么</h3><p>在 AI 语境里，harness 不是模型本身，而是包在模型外面的工作环境。它决定智能体能看见什么、能用哪些工具、什么时候停下来检查、犯错后如何恢复，以及人如何追踪它做过什么。</p></article>
+        <article class="card"><h3>它为什么重要</h3><p>只靠更好的 prompt，往往只能改善一次回答；但真实任务需要多轮执行、调用工具、处理错误和交付结果。Harness 工程把这些外部条件做成系统，让智能体从“会聊天”变成“能被管理地做事”。</p></article>
+        <article class="card"><h3>它怎么工作</h3><ul><li>先定义任务入口：用户目标、边界、完成标准和禁止事项。</li><li>再组织上下文：项目说明、历史决策、文件结构、当前状态和相关资料。</li><li>然后配置工具与权限：哪些命令能跑、哪些文件能改、哪些动作需要确认。</li><li>接着建立反馈回路：测试、校验、日志、审查、失败恢复和进度记录。</li><li>最后持续维护：清理过期知识、总结错误模式、让下一次执行继承经验。</li></ul></article>
+      </div>
+    </section>
+    <section>
+      <h2>它不是什么</h2>
+      <div class="not-list"><div class="not-item">不是传统汽车或电子行业里的线束工程；那个更多是在设计电缆、连接器和布线路径。</div><div class="not-item">不是单纯写一个更长的 Prompt；Prompt 只是 harness 里的一个小部件。</div><div class="not-item">不是某个固定软件或平台；它是一套围绕智能体可靠运行的系统设计方法。</div><div class="not-item">不是让 AI 完全自由发挥；恰好相反，它强调让 AI 在清楚边界里发挥。</div></div>
+    </section>
+    <section>
+      <h2>和相近概念怎么分</h2>
+      <div class="compare-grid">
+            <article class="compare-card">
+              <h3>Prompt 工程</h3>
+              <p>Prompt 工程主要优化一次输入如何表达。</p>
+              <button class="ghost" type="button" data-reveal>看区别</button>
+              <div class="reveal"><strong>关键区别：</strong>Prompt 工程像写一张任务纸条；Harness 工程像搭一个完整工作台，纸条、工具、检查表和安全规则都在里面。</div>
+            </article>
+            
+
+            <article class="compare-card">
+              <h3>Context 工程</h3>
+              <p>Context 工程关注给模型放进哪些信息。</p>
+              <button class="ghost" type="button" data-reveal>看区别</button>
+              <div class="reveal"><strong>关键区别：</strong>Context 工程是 harness 的核心零件之一；Harness 还包括工具、权限、反馈、记忆和运行流程。</div>
+            </article>
+            
+
+            <article class="compare-card">
+              <h3>Agent Framework</h3>
+              <p>Agent Framework 通常提供构建智能体的软件框架。</p>
+              <button class="ghost" type="button" data-reveal>看区别</button>
+              <div class="reveal"><strong>关键区别：</strong>框架是材料和脚手架；Harness 工程是如何把材料组织成可运行、可检查、可维护的系统。</div>
+            </article>
+            
+
+            <article class="compare-card">
+              <h3>线束工程</h3>
+              <p>线束工程是电气/机械行业中对线缆束、连接器和布线的设计制造。</p>
+              <button class="ghost" type="button" data-reveal>看区别</button>
+              <div class="reveal"><strong>关键区别：</strong>AI Harness 借用了“约束和连接力量”的比喻，但对象从电线或马具变成了 AI 智能体的运行环境。</div>
+            </article>
+            </div>
+    </section>
+    <section>
+      <h2>放进知识地图里</h2>
+      <div class="map"><section class="map-group"><h3>上位概念</h3><ul><li><span>AI Agent</span><small>Harness 工程服务的对象通常是需要连续执行任务的智能体。</small></li></ul></section>
+<section class="map-group"><h3>下位概念</h3><ul><li><span>Context Engineering</span><small>管理上下文是 harness 中最关键的一层。</small></li><li><span>Tool Use</span><small>智能体可靠性很大程度取决于工具接口是否清楚、有限、可验证。</small></li><li><span>Observability</span><small>如果看不见智能体做了什么，就很难改进或追责。</small></li></ul></section>
+<section class="map-group"><h3>容易混淆</h3><ul><li><span>Prompt Engineering</span><small>它们常被混为一谈，但层级不同。</small></li></ul></section>
+<section class="map-group"><h3>继续探索</h3><ul><li><span>Agent Memory</span><small>长期记忆是 harness 能持续变好的基础。</small></li></ul></section></div>
+    </section>
+    <section>
+      <h2>它从哪里来</h2>
+      <div class="timeline"><div class="time-item"><b>软件测试里的 test harness</b><p>harness 原本可指为测试对象搭建的运行和验证环境。</p></div>
+<div class="time-item"><b>AI Agent 进入真实工作流</b><p>当模型开始调用工具、读写文件和连续执行任务，单次提示不再够用。</p></div>
+<div class="time-item"><b>Harness Engineering 兴起</b><p>业内开始把模型外部的上下文、工具、权限、检查和维护机制视为一个整体来设计。</p></div></div>
+    </section>
+    <section>
+      <h2>一个具体例子</h2>
+      <article class="example"><h3>一个 Codex 例子</h3><p>同样是让 AI 修改代码，只写一句“帮我改好”很容易失控；如果有 AGENTS.md、测试命令、文件边界、权限确认、进度记录和最终检查，这整套东西就是一个 harness。</p></article>
+    </section>
+    <section>
+      <h2>小测一下</h2>
+      <div class="quiz">
+            <article class="quiz-card" data-answer="1" data-explanation="在 AI 语境里，它的核心是让智能体的执行环境可控、可查、可改进。">
+              <h3>Harness 工程最关心什么？</h3>
+              <div class="quiz-options"><button type="button" data-quiz="0" data-choice="0">把 prompt 写得更长</button><button type="button" data-quiz="0" data-choice="1">把智能体运行环境设计得更可靠</button><button type="button" data-quiz="0" data-choice="2">设计汽车线束</button></div>
+              <p class="feedback" aria-live="polite"></p>
+            </article>
+            
+
+            <article class="quiz-card" data-answer="1" data-explanation="上下文管理很重要，但 harness 还包括工具、权限、反馈和维护。">
+              <h3>Context 工程和 Harness 工程是什么关系？</h3>
+              <div class="quiz-options"><button type="button" data-quiz="1" data-choice="0">完全同义</button><button type="button" data-quiz="1" data-choice="1">Context 工程通常是 Harness 工程的一部分</button><button type="button" data-quiz="1" data-choice="2">二者没有关系</button></div>
+              <p class="feedback" aria-live="polite"></p>
+            </article>
+            </div>
+    </section>
+    <section>
+      <h2>三句话带走</h2>
+      <div class="takeaways"><div class="takeaway">Harness 工程关注的是模型外面的系统，而不是模型本身。</div><div class="takeaway">它把上下文、工具、权限、反馈和记忆组织成可复用的运行环境。</div><div class="takeaway">它和 Prompt 工程的差别是：一个改一句话，一个改整套工作条件。</div></div>
+    </section>
+    <section class="sources">
+      <h2>来源</h2>
+      <ul><li><a href="https://www.nxcode.io/zh/resources/news/harness-engineering-complete-guide-ai-agent-codex-2026" target="_blank" rel="noreferrer">NxCode：Harness 工程完整指南</a><span>用于确认 AI Agent 语境下 Harness 工程的中文定义和常见组成。</span></li>
+<li><a href="https://www.agentpatterns.ai/agent-design/harness-engineering/" target="_blank" rel="noreferrer">AgentPatterns.ai：Harness Engineering</a><span>用于整理可靠智能体环境、约束和反馈的核心思路。</span></li>
+<li><a href="https://www.siemens.com/zh-tw/technology/wire-harness-engineering/" target="_blank" rel="noreferrer">Siemens：线束工程</a><span>用于区分传统 wire harness engineering 与 AI Harness Engineering。</span></li>
+<li><a href="https://en.wikipedia.org/wiki/Harness" target="_blank" rel="noreferrer">Wikipedia：Harness</a><span>用于核对 harness 一词的多义性，包括 cable harness 和 test harness。</span></li></ul>
+    </section>
+  </main>
+  <footer>
+    <div class="wrap">Concept Forge · 更新于 2026-05-24 · 本页为本地自包含 HTML，可直接打开复习。</div>
+  </footer>
+  <script>
+    document.querySelectorAll('[data-reveal]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var target = btn.parentElement.querySelector('.reveal');
+        target.classList.toggle('open');
+        btn.textContent = target.classList.contains('open') ? '收起区别' : '看区别';
+      });
+    });
+    document.querySelectorAll('[data-choice]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var card = btn.closest('.quiz-card');
+        var answer = Number(card.dataset.answer);
+        var choice = Number(btn.dataset.choice);
+        var feedback = card.querySelector('.feedback');
+        if (choice === answer) {
+          feedback.textContent = '答对了。' + card.dataset.explanation;
+          feedback.className = 'feedback ok';
+        } else {
+          feedback.textContent = '还差一点。' + card.dataset.explanation;
+          feedback.className = 'feedback no';
+        }
+      });
+    });
+  </script>
+</body>
+</html>
